@@ -26,7 +26,7 @@
             <ul>
                 {% for sp in pending_species %}
                 <li>
-                    {{ sp.name }}
+                    <i>{{ sp.name }}</i>
                     — <a href="{% url 'evaluate_next_species' %}?start={{ sp.key }}">evaluate</a>
                 </li>
                 {% endfor %}
@@ -39,8 +39,19 @@
             <h3>Completed</h3>
             <ul>
                 {% for sp in completed_species %}
-                <li>{{ sp.name }}</li>
+                <li><i>{{ sp.name }}</i></li>
                 {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if extra_species %}
+            <h3>Additionally Evaluated Species</h3>
+            <ul>
+            {% for species in extra_species %}
+                <li><i>{{ species.name }}</i></li>
+            {% empty %}
+                <li>None</li>
+            {% endfor %}
             </ul>
             {% endif %}
 

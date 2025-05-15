@@ -2,8 +2,20 @@
 
 {% block content %}
 <div class="container my-5">
-    <div class="row">
-        <div class="col-md-12 col-lg-8">
-<h2>All assigned species evaluated. You're done!</h2>
-</div></div></div>
+    <h2>🎉 Thank you for your evaluations!</h2>
+
+    {% if species_list %}
+        <p>Do you wish to evaluate more species in the group <strong>{{ group }}</strong>?</p>
+        <ul>
+            {% for species in species_list %}
+                <li>
+                    <i>{{ species.name }}</i>
+                    <a href="{% url 'evaluate_species' species.key %}">Evaluate</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No more species available in this group. <a href="{% url 'dashboard' %}">Go to dashboard</a></p>
+    {% endif %}
+  </div>  
 {% endblock %}
