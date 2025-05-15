@@ -45,3 +45,10 @@ class QuestionOption(models.Model):
 
     def __str__(self):
         return f"{self.question.key}: {self.value}"
+    
+class SkippedSpecies(models.Model):
+    user_code = models.CharField(max_length=100)
+    species_key = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('user_code', 'species_key')

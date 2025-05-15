@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import AssignedSpecies, Species, Question, QuestionOption, Evaluation, UserAccess
+from .models import AssignedSpecies, Species, Question, QuestionOption, Evaluation, UserAccess, SkippedSpecies
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.templatetags.static import static #maybe remove
@@ -118,37 +118,80 @@ def evaluate_species(request, species_key):
     current_species = get_object_or_404(Species, key=species_key)
     questions = Question.objects.all()
 
+    # Check if species is assigned to user
     is_assigned = AssignedSpecies.objects.filter(
         user_code=user_code,
         species_key=species_key
     ).exists()
 
+    error = None
+
     if request.method == "POST":
-        for question in questions:
-            answer = request.POST.get(f"question_{question.key}")
-            if answer:
-                Evaluation.objects.update_or_create(
-                    user_code=user_code,
-                    species_key=species_key,
-                    question_key=question.key,
-                    defaults={'answer': answer}
-                )
+        if request.POST.get("submit") == "skip":
+            # Mark this species as skipped
+            SkippedSpecies.objects.get_or_create(user_code=user_code, species_key=species_key)
 
-        # Redirect to next species from same group not yet evaluated
-        access = get_object_or_404(UserAccess, user_code=user_code)
-        group = access.group
-        evaluated_keys = Evaluation.objects.filter(user_code=user_code).values_list('species_key', flat=True)
-        next_species = Species.objects.filter(group=group).exclude(key__in=evaluated_keys).first()
+            # Find next species in user's group, excluding evaluated, skipped, and current species
+            access = get_object_or_404(UserAccess, user_code=user_code)
+            group = access.group
 
-        if next_species:
-            return redirect('evaluate_species', species_key=next_species.key)
+            # Get species keys fully evaluated by user
+            total_questions = Question.objects.count()
+            evaluated_keys = []
+            for sp in Species.objects.filter(group=group):
+                answers_count = Evaluation.objects.filter(user_code=user_code, species_key=sp.key).count()
+                if answers_count >= total_questions:
+                    evaluated_keys.append(sp.key)
+
+            skipped_keys = SkippedSpecies.objects.filter(user_code=user_code).values_list('species_key', flat=True)
+
+            next_species = Species.objects.filter(group=group) \
+                .exclude(key__in=evaluated_keys) \
+                .exclude(key__in=skipped_keys) \
+                .exclude(key=species_key) \
+                .first()
+
+            if next_species:
+                return redirect('evaluate_species', species_key=next_species.key)
+            else:
+                return redirect('evaluation_complete', user_code=user_code)
+
+        # Validate: Check that all questions have answers ← added
+        missing_answers = [
+            question for question in questions
+            if not request.POST.get(f"question_{question.key}")
+        ]
+
+        if missing_answers:
+            error = "Please answer all questions before submitting."  # ← added
         else:
-            return redirect('evaluation_complete', user_code=user_code)
+            # Process submitted answers
+            for question in questions:
+                answer = request.POST.get(f"question_{question.key}")
+                if answer:
+                    Evaluation.objects.update_or_create(
+                        user_code=user_code,
+                        species_key=species_key,
+                        question_key=question.key,
+                        defaults={'answer': answer}
+                    )
+
+            # After saving answers, go to next uncompleted species in same group
+            access = get_object_or_404(UserAccess, user_code=user_code)
+            group = access.group
+            evaluated_keys = Evaluation.objects.filter(user_code=user_code).values_list('species_key', flat=True)
+            next_species = Species.objects.filter(group=group).exclude(key__in=evaluated_keys).first()
+
+            if next_species:
+                return redirect('evaluate_species', species_key=next_species.key)
+            else:
+                return redirect('evaluation_complete', user_code=user_code)
 
     context = {
         'species': current_species,
         'questions': questions,
-        'from_extra': not is_assigned,
+        'from_extra': not is_assigned,  # True if this species is not assigned
+        'error': error,  # ← added
         'current': f"https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid={current_species.key}/model=mpaeu/predictions/taxonid={current_species.key}_model=mpaeu_method=esm_scen=current_cog.tif",
         'future': f"https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid={current_species.key}/model=mpaeu/predictions/taxonid={current_species.key}_model=mpaeu_method=esm_scen=ssp370_dec100_cog.tif"
     }

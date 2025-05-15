@@ -63,6 +63,9 @@
 <hr>
 <div class="questions-block">
     <h3 style="margin-bottom: 15px;">Questions</h3>
+ {% if error %}
+    <div class="alert alert-danger" style="margin-bottom: 20px">{{ error }}</div>
+ {% endif %}
 <form method="post">
     {% csrf_token %}
     {% for question in questions %}
@@ -82,8 +85,8 @@
     {% endfor %}
     <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Submit</button>
     {% if from_extra %}
-    <button type="submit" name="submit" value="skip">Skip Species</button>
-    <button type="submit" name="submit" value="back">Back to List</button>
+    <button type="submit" class="btn btn-secondary" name="submit" value="skip" style="margin-top: 30px;">Skip Species</button>
+    <a href="{% url 'evaluation_complete' user_code=request.user.username %}" class="btn btn-outline-info" style="margin-top: 30px;">Back to List</a>
     {% endif %}
 </form>
 </div>
