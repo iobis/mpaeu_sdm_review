@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12 col-lg-12">
+
+<h2>Evaluate: <i>{{ species.name }}</i></h2>
+
+<!-- Nav tabs -->
+<ul class="nav nav-pills" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-one-tab" data-bs-toggle="tab" data-bs-target="#tab-one" type="button"
+            role="tab" aria-controls="tab-one" aria-selected="true">
+            Species information
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-two-tab" data-bs-toggle="tab" data-bs-target="#tab-two" type="button"
+            role="tab" aria-controls="tab-two" aria-selected="false">
+            Suitability - fit area
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
+            role="tab" aria-controls="tab-three" aria-selected="false">
+            Suitability - threshold
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
+            role="tab" aria-controls="tab-three" aria-selected="false">
+            Sampling locations
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
+            role="tab" aria-controls="tab-three" aria-selected="false">
+            Alternative models
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
+            role="tab" aria-controls="tab-three" aria-selected="false">
+            Future predictions
+        </button>
+    </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content mt-3" id="myTabContent">
+    <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one-tab">
+        {% include "species_info.html" %}
+    </div>
+    <div class="tab-pane fade" id="tab-two" role="tabpanel" aria-labelledby="tab-two-tab">
+        {% include "map.html" with map_id="suitability-map" selected_map=current%}
+    </div>
+    <div class="tab-pane fade" id="tab-three" role="tabpanel" aria-labelledby="tab-three-tab">
+        {% include "map.html" with map_id="suitability-map-future" selected_map=future%}
+    </div>
+</div>
+  
+<hr>
+<div class="questions-block">
+    <h3 style="margin-bottom: 15px;">Questions</h3>
+<form method="post">
+    {% csrf_token %}
+    {% for question in questions %}
+        <div>
+            <label><strong>{{ question.text }}</strong></label><br>
+            {% if question.options.all %}
+                {% for option in question.options.all %}
+                    <label>
+                        <input type="radio" name="question_{{ question.key }}" value="{{ option.value }}">
+                        {{ option.value }}
+                    </label>
+                {% endfor %}
+            {% else %}
+                <textarea name="question_{{ question.key }}"></textarea>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Submit</button>
+</form>
+</div>
+</div></div></div>
+{% endblock %}

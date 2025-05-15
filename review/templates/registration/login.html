@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block body_attrs %}
+style="background-color: #3c70ae;"
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h2>Welcome</h2>
+        <form method="post" class="login-form">
+        {% csrf_token %}
+        
+        {{ form.username.label_tag }}<br>
+        {{ form.username }}<br><br>
+
+        {{ form.password.label_tag }}<br>
+        {{ form.password }}<br><br>
+
+        <a href="#" class="forgot-password">Forgot Password</a><br><br>
+
+        <button type="submit" class="btn-login">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

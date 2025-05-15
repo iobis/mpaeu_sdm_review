@@ -1,0 +1,66 @@
+<div id="{{ map_id }}" class="leaflet-map" data-map-id="{{ map_id }}" style="height: 400px;"></div>
+
+<footer>
+    <!-- Leaflet + GeoRaster scripts -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/georaster"></script>
+<script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const map = L.map("{{ map_id }}").setView([0, 0], 2);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    document.getElementById("{{ map_id }}")._leafletInstance = map;
+
+    const cogUrl = "{{ selected_map }}";
+
+    fetch(cogUrl)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => parseGeoraster(arrayBuffer))
+        .then(georaster => {
+            const layer = new GeoRasterLayer({
+                georaster,
+                opacity: 1,
+                pixelValuesToColorFn: val => {
+                    if (val === undefined || val < 0 || val > 100) return null;
+                    const t = val / 100;
+                    const r = Math.round(255 * t);
+                    const g = Math.round(255 * t);
+                    const b = Math.round(255 * (1 - t));
+                    return `rgb(${r},${g},${b})`;
+                },
+                resolution: 64
+            });
+            layer.addTo(map);
+            map.fitBounds(layer.getBounds());
+        });
+});
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+      tabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function (event) {
+          const tabPane = document.querySelector(event.target.getAttribute("data-bs-target"));
+          const maps = tabPane.querySelectorAll(".leaflet-map");
+  
+          maps.forEach(mapDiv => {
+            const mapInstance = mapDiv._leafletInstance;
+            if (mapInstance) {
+              mapInstance.invalidateSize();
+            }
+          });
+        });
+      });
+    });
+  </script>
+  
+
+</footer>

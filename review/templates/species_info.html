@@ -1,0 +1,72 @@
+<div class="row">
+    <div>
+        <div id="species-info">Loading species info...</div>
+
+        <script>
+            //const speciesId = "{{ species.id }}";
+            const speciesId = 107381;
+            const jsonUrl = `https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=${speciesId}/model=mpaeu/taxonid=${speciesId}_model=mpaeu_what=log.json`;
+
+            fetch(jsonUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Main species JSON failed");
+                    return response.json();
+                })
+                .then(data => {
+                    const aphia = data.taxonID;
+                    const scientificName = data.scientificName;
+                    const group = data.group;
+                    let habDepth = data.hab_depth === 'depthmean' ? 'Benthic variables' : 'Surface variables';
+
+                    // Parallel fetches: OBIS + Vernacular
+                    Promise.all([
+                        fetch(`https://api.obis.org/v3/taxon/${aphia}`).then(res => res.json()),
+                        fetch(`https://www.marinespecies.org/rest/AphiaVernacularsByAphiaID/${aphia}`).then(res => res.json())
+                    ])
+                        .then(([obisData, vernacularData]) => {
+                            // OBIS taxonomy
+                            const obis = obisData.results[0] || {};
+                            const phylum = obis.phylum || '';
+                            const taxClass = obis.class || '';
+                            const order = obis.order || '';
+                            const family = obis.family || '';
+
+                            // Filter English vernaculars
+                            const englishNames = vernacularData
+                                .filter(v => v.language_code === "eng")
+                                .map(v => v.vernacular)
+                                .slice(0, 3)
+                                .join("; ");
+
+                            const html = `
+        <p><strong>Scientific Name:</strong> <i>${scientificName}</i></p>
+        <p><strong>Group:</strong> ${group}</p>
+        <p><strong>Phylum:</strong> ${phylum}</p>
+        <p><strong>Class:</strong> ${taxClass}</p>
+        <p><strong>Order:</strong> ${order}</p>
+        <p><strong>Family:</strong> ${family}</p>
+        <p><strong>Habitat Depth:</strong> ${habDepth}</p>
+        <p><strong>Vernacular Names:</strong> ${englishNames}</p>
+      `;
+
+                            document.getElementById('species-info').innerHTML = html;
+                        })
+                        .catch(err => {
+                            console.error("One of the API calls failed:", err);
+                            const html = `
+        <p><strong>Scientific Name:</strong> <i>${scientificName}</i></p>
+        <p><strong>Group:</strong> ${group}</p>
+        <p><strong>Habitat Depth:</strong> ${habDepth}</p>
+        <p><strong>Vernacular Names:</strong> </p>
+      `;
+                            document.getElementById('species-info').innerHTML = html;
+                        });
+                })
+                .catch(error => {
+                    document.getElementById('species-info').innerHTML = "Error loading data.";
+                    console.error("Main JSON load error:", error);
+                });
+
+        </script>
+    </div>
+</div>

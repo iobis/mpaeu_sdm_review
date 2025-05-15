@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12 col-lg-8">
+
+            {% if user.is_authenticated %}
+            <div class="row">
+                <div class="col-md-6 col-lg-6">
+                    <p>Welcome, reviewer <span style="font-weight: bold; color: #016dd7;">{{ user.username }}</span>!</p>
+                </div>
+                <div class="col-md-6 col-lg-6" style="justify-content: right;">
+                    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="my-btn">Logout</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <h2>Your assigned species</h2>
+
+            {% if pending_species %}
+            <h3>Still to evaluate</h3>
+            <ul>
+                {% for sp in pending_species %}
+                <li>
+                    {{ sp.name }}
+                    — <a href="{% url 'evaluate_next_species' %}?start={{ sp.key }}">evaluate</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p><em>No pending species.</em></p>
+            {% endif %}
+
+            {% if completed_species %}
+            <h3>Completed</h3>
+            <ul>
+                {% for sp in completed_species %}
+                <li>{{ sp.name }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
