@@ -37,6 +37,7 @@ class Question(models.Model):
     key = models.CharField(max_length=100, unique=True)
     text = models.CharField(max_length=255)
     explanation = models.CharField(max_length=500, default='', blank=True, null=True)
+    is_required = models.BooleanField(default=True)
     question_type = models.CharField(
         max_length=10,
         choices=QUESTION_TYPES,

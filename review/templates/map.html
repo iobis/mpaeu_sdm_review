@@ -1,5 +1,46 @@
 <div id="{{ map_id }}" class="leaflet-map" data-map-id="{{ map_id }}" style="height: 400px;"></div>
 
+<style>
+    #colorbar-legend {
+        width: 300px;
+        margin: 10px auto;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .colorbar {
+        height: 20px;
+        background: linear-gradient(to right, 
+            rgb(10, 35, 75), 
+            rgb(62, 85, 99),
+            rgb(115, 135, 122), 
+            rgb(168, 185, 148), 
+            rgb(210, 215, 111), 
+            rgb(251, 228, 74)
+        );
+        border: 1px solid #aaa;
+        margin-bottom: 4px;
+    }
+
+    .colorbar-labels {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 5px;
+    }
+</style>
+<div id="colorbar-legend">
+    <div>HSI (Habitat Suitability Index)</div>
+    <div class="colorbar"></div>
+    <div class="colorbar-labels">
+        <span>0.0</span>
+        <span>0.2</span>
+        <span>0.4</span>
+        <span>0.6</span>
+        <span>0.8</span>
+        <span>1.0</span>
+    </div>
+</div>
+
 <footer>
     <!-- Leaflet + GeoRaster scripts -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />

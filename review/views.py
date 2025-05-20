@@ -56,42 +56,57 @@ def force_password_change(request):
 @login_required
 def evaluate_next_species(request):
     user_code = request.user.username  # Assuming username matches user_code
+    error = None
 
     # Step 1: Find assigned species not fully evaluated
     assigned = AssignedSpecies.objects.filter(user_code=user_code)
 
     for assignment in assigned:
         species_key = assignment.species_key
-        num_questions = Question.objects.count()
+        required_questions = Question.objects.filter(is_required=True)
+        required_keys = required_questions.values_list('key', flat=True)
+
+        num_required = required_questions.count()
         num_answers = Evaluation.objects.filter(
             user_code=user_code,
-            species_key=species_key
+            species_key=species_key,
+            question_key__in=required_keys
         ).count()
-        if num_answers < num_questions:
+
+        if num_answers < num_required:
             current_species = get_object_or_404(Species, key=species_key)
             break
     else:
-        # All species evaluated
-        #return render(request, "done.html")
         return redirect("evaluation_complete", user_code=user_code)
 
     questions = Question.objects.all()
 
     if request.method == "POST":
-        for question in questions:
-            answer = request.POST.get(f"question_{question.key}")
-            if answer:
-                Evaluation.objects.update_or_create(
-                    user_code=user_code,
-                    species_key=current_species.key,
-                    question_key=question.key,
-                    defaults={'answer': answer}
-                )
-        return redirect('evaluate_next_species')  # Go to next species
+        # Validate required questions
+        missing_answers = [
+            question for question in questions
+            if question.is_required and not request.POST.get(f"question_{question.key}")
+        ]
+
+        if missing_answers:
+            error = "Please answer all required questions before submitting."
+        else:
+            for question in questions:
+                answer = request.POST.get(f"question_{question.key}")
+                if answer:
+                    Evaluation.objects.update_or_create(
+                        user_code=user_code,
+                        species_key=current_species.key,
+                        question_key=question.key,
+                        defaults={'answer': answer}
+                    )
+            return redirect('evaluate_next_species')  # Go to next species
+
 
     context = {
         'species': current_species,
         'questions': questions,
+        'error': error, 
         'current': static(f"review/species/taxonid={species_key}_current.tif"),
         'current_th': static(f"review/species/taxonid={species_key}_current_th.tif"),
         'points': static(f"review/species/taxonid={species_key}_pts.csv"),
@@ -104,7 +119,9 @@ def evaluate_next_species(request):
 @login_required
 def species_overview(request):
     user_code = request.user.username
-    total_q = Question.objects.count()
+    required_questions = Question.objects.filter(is_required=True)
+    required_keys = required_questions.values_list('key', flat=True)
+    total_required = required_questions.count()
 
     # Species explicitly assigned to this user
     assigned_keys = AssignedSpecies.objects.filter(
@@ -119,9 +136,10 @@ def species_overview(request):
     for sp in assigned_species:
         answered = Evaluation.objects.filter(
             user_code=user_code,
-            species_key=sp.key
+            species_key=sp.key,
+            question_key__in=required_keys
         ).count()
-        if answered >= total_q:
+        if answered >= total_required:
             completed.append(sp)
         else:
             pending.append(sp)
@@ -154,7 +172,7 @@ def evaluation_complete(request, user_code):
     ).values_list('species_key', flat=True)
 
     # Show unassigned species in same group not yet evaluated
-    available_species = Species.objects.filter(group=group).exclude(key__in=evaluated_species_keys)
+    available_species = Species.objects.filter(group=group).exclude(key__in=evaluated_species_keys).order_by('name')
 
     return render(request, "done.html", {
         "user_code": user_code,
@@ -186,11 +204,18 @@ def evaluate_species(request, species_key):
             group = access.group
 
             # Get species keys fully evaluated by user
-            total_questions = Question.objects.count()
+            required_questions = Question.objects.filter(is_required=True)
+            required_keys = required_questions.values_list('key', flat=True)
+            total_required = required_questions.count()
+
             evaluated_keys = []
             for sp in Species.objects.filter(group=group):
-                answers_count = Evaluation.objects.filter(user_code=user_code, species_key=sp.key).count()
-                if answers_count >= total_questions:
+                answers_count = Evaluation.objects.filter(
+                    user_code=user_code,
+                    species_key=sp.key,
+                    question_key__in=required_keys
+                ).count()
+                if answers_count >= total_required:
                     evaluated_keys.append(sp.key)
 
             skipped_keys = SkippedSpecies.objects.filter(user_code=user_code).values_list('species_key', flat=True)
@@ -206,14 +231,14 @@ def evaluate_species(request, species_key):
             else:
                 return redirect('evaluation_complete', user_code=user_code)
 
-        # Validate: Check that all questions have answers ← added
+        # Validate: Check that all questions have answers
         missing_answers = [
             question for question in questions
-            if not request.POST.get(f"question_{question.key}")
+            if question.is_required and not request.POST.get(f"question_{question.key}")
         ]
 
         if missing_answers:
-            error = "Please answer all questions before submitting."  # ← added
+            error = "Please answer all questions before submitting." 
         else:
             # Process submitted answers
             for question in questions:
