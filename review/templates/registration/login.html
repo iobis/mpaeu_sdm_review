@@ -10,6 +10,14 @@ style="background-color: #3c70ae;"
         <h2>Welcome</h2>
         <form method="post" class="login-form">
         {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {% for error in form.non_field_errors %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         
         {{ form.username.label_tag }}<br>
         {{ form.username }}<br><br>
