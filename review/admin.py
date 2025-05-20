@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
-from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies#, EvaluationAnswer
+from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation#, EvaluationAnswer
 
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
@@ -40,3 +40,32 @@ admin.site.unregister(User)
 
 # Register the User model with your custom admin
 admin.site.register(User, CustomUserAdmin)
+
+@admin.action(description="Export evaluations as CSV")
+def export_evaluations_csv(modeladmin, request, queryset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="evaluations.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['user_code', 'species_key', 'question', 'answer'])
+
+    # Build a lookup dictionary for question text
+    question_lookup = {
+        q.key: q.text for q in Question.objects.all()
+    }
+
+    for evaluation in queryset:
+        question_text = question_lookup.get(evaluation.question_key, evaluation.question_key)
+        writer.writerow([
+            evaluation.user_code,
+            evaluation.species_key,
+            question_text,
+            evaluation.answer
+        ])
+
+    return response
+
+@admin.register(Evaluation)
+class EvaluationAdmin(admin.ModelAdmin):
+    list_display = ['user_code', 'species_key', 'question_key', 'answer']
+    actions = [export_evaluations_csv]
