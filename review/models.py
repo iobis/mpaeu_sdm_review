@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 # Create your models here.
 class Species(models.Model):
@@ -12,6 +13,10 @@ class Species(models.Model):
 class UserAccess(models.Model):
     user_code = models.CharField(max_length=100, unique=True)
     group = models.CharField(max_length=100)  # The group the user can access
+    must_change_password = models.BooleanField(default=True)
+    consent_accepted = models.BooleanField(default=False)
+    consent_timestamp = models.DateTimeField(null=True, blank=True)
+    consent_ip = models.GenericIPAddressField(null=True, blank=True)
 
     def __str__(self):
         return self.user_code

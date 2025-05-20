@@ -6,6 +6,7 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/georaster"></script>
 <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -20,6 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const cogUrl = "{{ selected_map }}";
 
+    function interpolateColor(val, min = 0, max = 100) {
+        if (val === undefined || val < min || val > max) return null;
+
+        const startColor = [10, 35, 75];    // #0a234b
+        const endColor   = [251, 228, 74];  // #fbe44a
+
+        const t = (val - min) / (max - min);
+
+        const r = Math.round(startColor[0] + t * (endColor[0] - startColor[0]));
+        const g = Math.round(startColor[1] + t * (endColor[1] - startColor[1]));
+        const b = Math.round(startColor[2] + t * (endColor[2] - startColor[2]));
+
+        return `rgb(${r},${g},${b})`;
+    }
+
     fetch(cogUrl)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => parseGeoraster(arrayBuffer))
@@ -27,19 +43,47 @@ document.addEventListener("DOMContentLoaded", function () {
             const layer = new GeoRasterLayer({
                 georaster,
                 opacity: 1,
-                pixelValuesToColorFn: val => {
-                    if (val === undefined || val < 0 || val > 100) return null;
-                    const t = val / 100;
-                    const r = Math.round(255 * t);
-                    const g = Math.round(255 * t);
-                    const b = Math.round(255 * (1 - t));
-                    return `rgb(${r},${g},${b})`;
-                },
-                resolution: 64
+                pixelValuesToColorFn: val => interpolateColor(val),
+                // pixelValuesToColorFn: val => {
+                //     if (val === undefined || val < 0 || val > 100) return null;
+                //     const t = val / 100;
+                //     const r = Math.round(255 * t);
+                //     const g = Math.round(255 * t);
+                //     const b = Math.round(255 * (1 - t));
+                //     return `rgb(${r},${g},${b})`;
+                // },
+                resolution: 128
             });
             layer.addTo(map);
             map.fitBounds(layer.getBounds());
+            map.setZoom()
         });
+
+    const csvUrl = "{{ selected_pts }}";
+
+    if (csvUrl) {
+        fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvText => {
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    results.data.forEach(row => {
+                        if (row.x && row.y) {
+                            L.circleMarker([row.y, row.x], {
+                                radius: 6,
+                                color: 'black',
+                                fillColor: '#ffcc00',  // High contrast yellow-orange
+                                fillOpacity: 1,
+                                weight: 1
+                            }).addTo(map);
+                        }
+                    });
+                }
+            });
+        });
+    }
 });
 </script>
 

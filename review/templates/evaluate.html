@@ -28,20 +28,20 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
-            role="tab" aria-controls="tab-three" aria-selected="false">
+        <button class="nav-link" id="tab-four-tab" data-bs-toggle="tab" data-bs-target="#tab-four" type="button"
+            role="tab" aria-controls="tab-four" aria-selected="false">
             Sampling locations
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
-            role="tab" aria-controls="tab-three" aria-selected="false">
+        <button class="nav-link" id="tab-five-tab" data-bs-toggle="tab" data-bs-target="#tab-five" type="button"
+            role="tab" aria-controls="tab-five" aria-selected="false">
             Alternative models
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-three-tab" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
-            role="tab" aria-controls="tab-three" aria-selected="false">
+        <button class="nav-link" id="tab-six-tab" data-bs-toggle="tab" data-bs-target="#tab-six" type="button"
+            role="tab" aria-controls="tab-six" aria-selected="false">
             Future predictions
         </button>
     </li>
@@ -56,7 +56,17 @@
         {% include "map.html" with map_id="suitability-map" selected_map=current%}
     </div>
     <div class="tab-pane fade" id="tab-three" role="tabpanel" aria-labelledby="tab-three-tab">
-        {% include "map.html" with map_id="suitability-map-future" selected_map=future%}
+        {% include "map.html" with map_id="suitability-map-th" selected_map=current_th%}
+    </div>
+    <div class="tab-pane fade" id="tab-four" role="tabpanel" aria-labelledby="tab-four-tab">
+        {% include "map.html" with map_id="suitability-map-pts" selected_map=current selected_pts=points%}
+    </div>
+    <div class="tab-pane fade" id="tab-five" role="tabpanel" aria-labelledby="tab-five-tab">
+        <img src="{{ others }}" alt="">
+    </div>
+    <div class="tab-pane fade" id="tab-six" role="tabpanel" aria-labelledby="tab-six-tab">
+        <h5>SSP3 scenario - 2100</h5>
+        {% include "map.html" with map_id="suitability-map-future2" selected_map=future_b%}
     </div>
 </div>
   

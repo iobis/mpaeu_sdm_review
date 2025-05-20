@@ -44,6 +44,12 @@
             </ul>
             {% endif %}
 
+            {% if not pending_species %}
+            <a href="{% url 'evaluate_next_species' %}" class="btn btn-outline-primary" style="margin-top: 10px; margin-bottom: 10px;">
+                Evaluate more species
+            </a>
+            {% endif %}
+
             {% if extra_species %}
             <h2>Additionally Evaluated Species</h2>
             <ul>

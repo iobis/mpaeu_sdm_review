@@ -19,7 +19,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <!-- Logo on the left -->
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="{% url 'dashboard' %}">
             <img src="{% static 'review/img/logo.png' %}" alt="Logo"
                 class="d-inline-block align-text-top" height="40px">
         </a>
@@ -36,7 +36,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
             <ul class="navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="">Help</a> 
+                    <a class="nav-link" href="{% url 'help' %}">Help</a> 
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
@@ -54,7 +54,7 @@
     {% block footer %}
     <footer class="bg-light text-black text-center py-3 mt-auto">
         <div class="container">
-          2025 - OBIS
+          2025 - OBIS - <a href="https://mpa-europe.eu/">MPA Europe</a>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     </footer>

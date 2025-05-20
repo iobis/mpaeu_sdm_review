@@ -3,8 +3,8 @@
         <div id="species-info">Loading species info...</div>
 
         <script>
-            //const speciesId = "{{ species.id }}";
-            const speciesId = 107381;
+            const speciesId = "{{ species.key }}";
+            //const speciesId = 107381;
             const jsonUrl = `https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=${speciesId}/model=mpaeu/taxonid=${speciesId}_model=mpaeu_what=log.json`;
 
             fetch(jsonUrl)

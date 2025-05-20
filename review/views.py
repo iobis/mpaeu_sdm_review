@@ -3,8 +3,55 @@ from .models import AssignedSpecies, Species, Question, QuestionOption, Evaluati
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.templatetags.static import static #maybe remove
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.timezone import now
+from django import forms
 
 User = get_user_model()
+
+class PasswordChangeWithConsentForm(PasswordChangeForm):
+    consent_accepted = forms.BooleanField(
+        required=True,
+        label="I agree to the terms of participation and data usage."
+    )
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+@login_required
+def force_password_change(request):
+    error_message = None
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        consent_checked = request.POST.get('consent_checkbox') == 'on'
+
+        if new_password and new_password == confirm_password and consent_checked:
+            user = request.user
+            user.set_password(new_password)
+            user.save()
+
+            access = UserAccess.objects.get(user_code=user.username)
+            access.must_change_password = False
+            access.consent_accepted = True
+            access.consent_timestamp = now()
+            access.consent_ip = get_client_ip(request)
+            access.save()
+
+            update_session_auth_hash(request, user)
+
+            return redirect('evaluate_next_species')
+        else:
+            error_message = "Please ensure the passwords match and the consent box is checked."
+
+    return render(request, 'force_password_change.html', {
+        'error_message': error_message
+    })
 
 @login_required
 def evaluate_next_species(request):
@@ -45,9 +92,12 @@ def evaluate_next_species(request):
     context = {
         'species': current_species,
         'questions': questions,
-        #'cog_url': static(f"review/species/taxonid=102279_current_cog.tif")
-        'current': "https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=1005391/model=mpaeu/predictions/taxonid=1005391_model=mpaeu_method=esm_scen=current_cog.tif",
-        'future': "https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=1005391/model=mpaeu/predictions/taxonid=1005391_model=mpaeu_method=esm_scen=ssp370_dec100_cog.tif"
+        'current': static(f"review/species/taxonid={species_key}_current.tif"),
+        'current_th': static(f"review/species/taxonid={species_key}_current_th.tif"),
+        'points': static(f"review/species/taxonid={species_key}_pts.csv"),
+        'future': static(f"review/species/taxonid={species_key}_current_th_ssp1.tif"),
+        'future_b': static(f"review/species/taxonid={species_key}_current_th_ssp3.tif"),
+        'others': static(f"review/species/taxonid={species_key}_others.png"),
     }
     return render(request, "evaluate.html", context)
 
@@ -190,9 +240,13 @@ def evaluate_species(request, species_key):
     context = {
         'species': current_species,
         'questions': questions,
-        'from_extra': not is_assigned,  # True if this species is not assigned
-        'error': error,  # ← added
-        'current': f"https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid={current_species.key}/model=mpaeu/predictions/taxonid={current_species.key}_model=mpaeu_method=esm_scen=current_cog.tif",
-        'future': f"https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid={current_species.key}/model=mpaeu/predictions/taxonid={current_species.key}_model=mpaeu_method=esm_scen=ssp370_dec100_cog.tif"
+        'from_extra': not is_assigned, 
+        'error': error, 
+        'current': static(f"review/species/taxonid={species_key}_current.tif"),
+        'current_th': static(f"review/species/taxonid={species_key}_current_th.tif"),
+        'points': static(f"review/species/taxonid={species_key}_pts.csv"),
+        'future': static(f"review/species/taxonid={species_key}_current_th_ssp1.tif"),
+        'future_b': static(f"review/species/taxonid={species_key}_current_th_ssp3.tif"),
+        'others': static(f"review/species/taxonid={species_key}_others.png"),
     }
     return render(request, "evaluate.html", context)
