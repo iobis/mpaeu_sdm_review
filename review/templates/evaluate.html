@@ -81,15 +81,18 @@
     {% for question in questions %}
         <div style="margin-bottom: 20px; display: grid;">
             <label><strong>{{ question.text }}</strong></label><br>
-            {% if question.options.all %}
+            {% if question.explanation %}
+                <label><i>{{ question.explanation }}</i></label><br>
+            {% endif %}
+            {% if question.question_type == 'text' %}
+                <textarea name="question_{{ question.key }}" rows="3" cols="50"></textarea>
+            {% else %}
                 {% for option in question.options.all %}
                     <label>
                         <input type="radio" name="question_{{ question.key }}" value="{{ option.value }}">
                         {{ option.value }}
-                    </label>
+                    </label><br>
                 {% endfor %}
-            {% else %}
-                <textarea name="question_{{ question.key }}"></textarea>
             {% endif %}
         </div>
     {% endfor %}

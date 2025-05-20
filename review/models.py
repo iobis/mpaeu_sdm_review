@@ -29,8 +29,19 @@ class AssignedSpecies(models.Model):
         unique_together = ('user_code', 'species_key')
 
 class Question(models.Model):
+    QUESTION_TYPES = [
+        ('radio', 'Radio (Multiple Choice)'),
+        ('text', 'Free Text'),
+    ]
+
     key = models.CharField(max_length=100, unique=True)
     text = models.CharField(max_length=255)
+    explanation = models.CharField(max_length=255, default='', blank=True, null=True)
+    question_type = models.CharField(
+        max_length=10,
+        choices=QUESTION_TYPES,
+        default='radio'
+    )
 
     def __str__(self):
         return self.text
@@ -46,7 +57,7 @@ class Evaluation(models.Model):
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
-    value = models.CharField(max_length=100)
+    value = models.CharField(max_length=300)
 
     def __str__(self):
         return f"{self.question.key}: {self.value}"

@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.http import HttpResponse
 import csv
+from import_export.admin import ImportExportModelAdmin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
 from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies#, EvaluationAnswer
@@ -13,13 +16,13 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionInline]
     list_display = ('key', 'text')
 
-class SpeciesAdmin(admin.ModelAdmin):
+class SpeciesAdmin(ImportExportModelAdmin):
     list_display = ('key', 'name', 'group')
 
-class UserAccessAdmin(admin.ModelAdmin):
+class UserAccessAdmin(ImportExportModelAdmin):
     list_display = ('user_code', 'group')
 
-class AssignedSpeciesAdmin(admin.ModelAdmin):
+class AssignedSpeciesAdmin(ImportExportModelAdmin):
     list_display = ('user_code', 'species_key')
 
 # Register all models with the admin
@@ -28,29 +31,12 @@ admin.site.register(Species, SpeciesAdmin)
 admin.site.register(UserAccess, UserAccessAdmin)
 admin.site.register(AssignedSpecies, AssignedSpeciesAdmin)
 
-# Answers
-# class EvaluationAnswerAdmin(admin.ModelAdmin):
-#     list_display = ("user", "species", "question", "answer")
+# To be able to use import in the user admin
+class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
+    pass
 
-#     actions = ["export_as_csv"]
+# Unregister the original User admin
+admin.site.unregister(User)
 
-#     def export_as_csv(self, request, queryset):
-#         response = HttpResponse(content_type="text/csv")
-#         response["Content-Disposition"] = "attachment; filename=evaluation_results.csv"
-
-#         writer = csv.writer(response)
-#         writer.writerow(["User", "Species", "Question", "Answer"])
-
-#         for answer in queryset:
-#             writer.writerow([
-#                 answer.user.username,
-#                 answer.species.name,
-#                 answer.question.text,
-#                 answer.answer
-#             ])
-
-#         return response
-
-#     export_as_csv.short_description = "Export selected results as CSV"
-
-# admin.site.register(EvaluationAnswer, EvaluationAnswerAdmin)
+# Register the User model with your custom admin
+admin.site.register(User, CustomUserAdmin)
