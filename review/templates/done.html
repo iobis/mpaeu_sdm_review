@@ -5,7 +5,7 @@
     <h2>🎉 Thank you for your evaluations!</h2>
 
     {% if species_list %}
-        <p>Do you wish to evaluate more species in the group <strong>{{ group }}</strong>?</p>
+        <p>Do you wish to evaluate more species in the group(s) <strong>{{ group_names }}</strong>?</p>
         <ul>
             {% for species in species_list %}
                 <li>
@@ -15,7 +15,7 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No more species available in this group. <a href="{% url 'dashboard' %}">Go to dashboard</a></p>
+        <p>No more species available for evaluation. <a href="{% url 'dashboard' %}">Go to dashboard</a></p>
     {% endif %}
   </div>  
 {% endblock %}

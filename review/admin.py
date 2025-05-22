@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
-from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation#, EvaluationAnswer
+from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation, SpeciesGroup#, EvaluationAnswer
 
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
@@ -20,16 +20,21 @@ class SpeciesAdmin(ImportExportModelAdmin):
     list_display = ('key', 'name', 'group')
 
 class UserAccessAdmin(ImportExportModelAdmin):
-    list_display = ('user_code', 'group')
+    list_display = ['user_code', 'must_change_password', 'consent_accepted']
+    filter_horizontal = ['groups']
 
 class AssignedSpeciesAdmin(ImportExportModelAdmin):
     list_display = ('user_code', 'species_key')
+
+class SpeciesGroupAdmin(admin.ModelAdmin):
+    list_display = ['name']
 
 # Register all models with the admin
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Species, SpeciesAdmin)
 admin.site.register(UserAccess, UserAccessAdmin)
 admin.site.register(AssignedSpecies, AssignedSpeciesAdmin)
+admin.site.register(SpeciesGroup, SpeciesGroupAdmin)
 
 # To be able to use import in the user admin
 class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):

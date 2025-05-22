@@ -61,23 +61,29 @@ def evaluate_next_species(request):
     # Step 1: Find assigned species not fully evaluated
     assigned = AssignedSpecies.objects.filter(user_code=user_code)
 
-    for assignment in assigned:
-        species_key = assignment.species_key
-        required_questions = Question.objects.filter(is_required=True)
-        required_keys = required_questions.values_list('key', flat=True)
+    try:
+        for assignment in assigned:
+            species_key = assignment.species_key
+            required_questions = Question.objects.filter(is_required=True)
+            required_keys = required_questions.values_list('key', flat=True)
 
-        num_required = required_questions.count()
-        num_answers = Evaluation.objects.filter(
-            user_code=user_code,
-            species_key=species_key,
-            question_key__in=required_keys
-        ).count()
+            num_required = required_questions.count()
+            num_answers = Evaluation.objects.filter(
+                user_code=user_code,
+                species_key=species_key,
+                question_key__in=required_keys
+            ).count()
 
-        if num_answers < num_required:
-            current_species = get_object_or_404(Species, key=species_key)
-            break
-    else:
-        return redirect("evaluation_complete", user_code=user_code)
+            if num_answers < num_required:
+                current_species = get_object_or_404(Species, key=species_key)
+                break
+        else:
+            return redirect("evaluation_complete", user_code=user_code)
+    except Exception as e:
+        # Log or print for debugging
+        print(f"Exception during species evaluation loop: {e}")
+        raise
+
 
     questions = Question.objects.all()
 
@@ -164,7 +170,7 @@ def species_overview(request):
 @login_required
 def evaluation_complete(request, user_code):
     access = get_object_or_404(UserAccess, user_code=user_code)
-    group = access.group
+    groups = access.groups.all()
 
     # Already evaluated
     evaluated_species_keys = Evaluation.objects.filter(
@@ -172,11 +178,14 @@ def evaluation_complete(request, user_code):
     ).values_list('species_key', flat=True)
 
     # Show unassigned species in same group not yet evaluated
-    available_species = Species.objects.filter(group=group).exclude(key__in=evaluated_species_keys).order_by('name')
+    available_species = Species.objects.filter(group__in=groups).exclude(key__in=evaluated_species_keys).order_by('name')
+
+    group_names = ", ".join([group.name for group in groups])
 
     return render(request, "done.html", {
         "user_code": user_code,
-        "group": group,
+        "groups": groups,
+        "group_names": group_names, 
         "species_list": available_species
     })
 
@@ -201,7 +210,7 @@ def evaluate_species(request, species_key):
 
             # Find next species in user's group, excluding evaluated, skipped, and current species
             access = get_object_or_404(UserAccess, user_code=user_code)
-            group = access.group
+            groups = access.groups.all()
 
             # Get species keys fully evaluated by user
             required_questions = Question.objects.filter(is_required=True)
@@ -209,7 +218,7 @@ def evaluate_species(request, species_key):
             total_required = required_questions.count()
 
             evaluated_keys = []
-            for sp in Species.objects.filter(group=group):
+            for sp in Species.objects.filter(group__in=groups):
                 answers_count = Evaluation.objects.filter(
                     user_code=user_code,
                     species_key=sp.key,
@@ -220,7 +229,7 @@ def evaluate_species(request, species_key):
 
             skipped_keys = SkippedSpecies.objects.filter(user_code=user_code).values_list('species_key', flat=True)
 
-            next_species = Species.objects.filter(group=group) \
+            next_species = Species.objects.filter(group__in=groups) \
                 .exclude(key__in=evaluated_keys) \
                 .exclude(key__in=skipped_keys) \
                 .exclude(key=species_key) \
@@ -253,9 +262,9 @@ def evaluate_species(request, species_key):
 
             # After saving answers, go to next uncompleted species in same group
             access = get_object_or_404(UserAccess, user_code=user_code)
-            group = access.group
+            groups = access.groups.all()
             evaluated_keys = Evaluation.objects.filter(user_code=user_code).values_list('species_key', flat=True)
-            next_species = Species.objects.filter(group=group).exclude(key__in=evaluated_keys).first()
+            next_species = Species.objects.filter(group__in=groups).exclude(key__in=evaluated_keys).first()
 
             if next_species:
                 return redirect('evaluate_species', species_key=next_species.key)
