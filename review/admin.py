@@ -26,7 +26,7 @@ class UserAccessAdmin(ImportExportModelAdmin):
 class AssignedSpeciesAdmin(ImportExportModelAdmin):
     list_display = ('user_code', 'species_key')
 
-class SpeciesGroupAdmin(admin.ModelAdmin):
+class SpeciesGroupAdmin(ImportExportModelAdmin):
     list_display = ['name']
 
 # Register all models with the admin
