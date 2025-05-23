@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container my-5">
@@ -6,6 +7,50 @@
         <div class="col-md-12 col-lg-12">
             <h2>Welcome to the MPA Europe SDM evaluation application</h2>
             <h4>First steps</h4>
+            <p>1. Go to https://sdmreview.obis.org and type your username and received password</p>
+            <img src="{% static 'review/img/help/help1.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>2. Change your password (or can be the same one if you wish) and accept the consent form</p>
+            <img src="{% static 'review/img/help/help2.png' %}" alt="Step2" style="width: 100%;">
+            <br>
+            <p>3. You will enter into your personal dashboard of MPA Europe SMD review with a list of assigned species still to evaluate. Select the species and click evaluate </p>
+            <img src="{% static 'review/img/help/help3.png' %}" alt="Step3" style="width: 100%;">
+            <br>
+            <p>4. Under each species you will have different informative tabs, that you will need to have in order to evaluate the related SDM</p>
+            <p><b>Species information:</b general taxonomic and ecological information</p>
+            <img src="{% static 'review/img/help/help4.png' %}" alt="Step4" style="width: 100%;">
+            <br>
+            <p><b>Suitability:</b> map of original prediction with potential suitable habitat for the species (0 = no suitable, dark blue; 1 = suitable, yellow)</p>
+            <img src="{% static 'review/img/help/help5.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p><b>Suitability – core area:</b> map of core area (0 = no suitable, dark blue; 1 = suitable, yellow), where of low suitability areas has been removed based on the P10 threshold, which assumes the 10% of points with lowest values are not representative.  </p>
+            <img src="{% static 'review/img/help/help6.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p><b>Sampling locations:</b> map with the occurrence data available</p>
+            <img src="{% static 'review/img/help/help7.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p><b>Alternative models:</b> map of original prediction based on other modelling algorithms </p>
+            <img src="{% static 'review/img/help/help8.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p><b>Future predictions:</b> maps of the five CMIP6 SSP (Shared Socio-Economic Pathways) scenarios with two time periods 2050 and 2100</p>
+            <img src="{% static 'review/img/help/help9.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>5. Once you have checked and read the information associated to the species, you can start replying to the five mandatory* questions and one optional comment box Once you have checked and read the information associated to the species, you can start replying to the five mandatory questions and one optional comment box</p>
+            <img src="{% static 'review/img/help/help10.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>6. Once all questions have been answered, click Submit, and you will  be automatically directed to the next species still to evaluate </p>
+            <img src="{% static 'review/img/help/help11.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>7. Once you have completed the 20 assigned species (requested as minimum number of species to evaluate), you have the opportunity to keep evaluating more SDMs. You can select the species following the given order or you can use the browser search tool to search the species you wish to evaluate and click evaluate </p>
+            <img src="{% static 'review/img/help/help12.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>8. Once you select it you can still decide whether evaluate and Submit, or Skip Species or go Back to list </p>
+            <img src="{% static 'review/img/help/help13.png' %}" alt="Step1" style="width: 100%;">
+            <br>
+            <p>9. If you evaluate and click submit, you will be automatically directed to the next species still to evaluate. </p>
+            <p>10. If you want, you can click on Dashboard (top right) and you will redirect back to your personal dashboard of MPA Europe SMD review with a list of assigned species still to evaluate and the list of completed species evaluations and the additional evaluated species. </p>
+            <img src="{% static 'review/img/help/help14.png' %}" alt="Step1" style="width: 100%;">
+            <br>
         </div>
     </div>
 </div>
