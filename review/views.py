@@ -57,13 +57,31 @@ def force_password_change(request):
 
 @login_required
 def evaluate_next_species(request):
-    user_code = request.user.username  # Assuming username matches user_code
+    user_code = request.user.username
     error = None
+    species_key = request.GET.get('start')  # NEW: support direct species selection
 
-    # Step 1: Find assigned species not fully evaluated
-    assigned = AssignedSpecies.objects.filter(user_code=user_code)
+    if species_key:
+        # Confirm the species is assigned to this user
+        if not AssignedSpecies.objects.filter(user_code=user_code, species_key=species_key).exists():
+            return HttpResponseForbidden("You are not assigned to this species.")
+        current_species = get_object_or_404(Species, key=species_key)
 
-    try:
+        required_questions = Question.objects.filter(is_required=True)
+        required_keys = required_questions.values_list('key', flat=True)
+
+        num_required = required_questions.count()
+        num_answers = Evaluation.objects.filter(
+            user_code=user_code,
+            species_key=species_key,
+            question_key__in=required_keys
+        ).count()
+
+        if num_answers == num_required:
+            return redirect("evaluate_next_species")  # Go to next uncompleted
+    else:
+        # Default behavior: find the next species needing evaluation
+        assigned = AssignedSpecies.objects.filter(user_code=user_code)
         for assignment in assigned:
             species_key = assignment.species_key
             required_questions = Question.objects.filter(is_required=True)
@@ -81,16 +99,10 @@ def evaluate_next_species(request):
                 break
         else:
             return redirect("evaluation_complete", user_code=user_code)
-    except Exception as e:
-        # Log or print for debugging
-        print(f"Exception during species evaluation loop: {e}")
-        raise
-
 
     questions = Question.objects.all()
 
     if request.method == "POST":
-        # Validate required questions
         missing_answers = [
             question for question in questions
             if question.is_required and not request.POST.get(f"question_{question.key}")
@@ -108,8 +120,7 @@ def evaluate_next_species(request):
                         question_key=question.key,
                         defaults={'answer': answer}
                     )
-            return redirect('evaluate_next_species')  # Go to next species
-
+            return redirect('evaluate_next_species')
 
     context = {
         'species': current_species,
