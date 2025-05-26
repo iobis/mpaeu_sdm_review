@@ -115,12 +115,12 @@ def evaluate_next_species(request):
         'species': current_species,
         'questions': questions,
         'error': error, 
-        'current': static(f"{base_url}taxonid={species_key}_current.tif"),
-        'current_th': static(f"{base_url}taxonid={species_key}_current_th.tif"),
-        'points': static(f"{base_url}taxonid={species_key}_pts.csv"),
-        'future': static(f"{base_url}taxonid={species_key}_current_th_ssp1.tif"),
-        'future_b': static(f"{base_url}taxonid={species_key}_current_th_ssp3.tif"),
-        'others': static(f"{base_url}taxonid={species_key}_others.png"),
+        'current': f"{base_url}taxonid={species_key}_current.tif",
+        'current_th': f"{base_url}taxonid={species_key}_current_th.tif",
+        'points': f"{base_url}taxonid={species_key}_pts.csv",
+        'future': f"{base_url}taxonid={species_key}_current_th_ssp1.tif",
+        'future_b': f"{base_url}taxonid={species_key}_current_th_ssp3.tif",
+        'others': f"{base_url}taxonid={species_key}_others.png",
     }
     return render(request, "evaluate.html", context)
 
@@ -278,11 +278,11 @@ def evaluate_species(request, species_key):
         'questions': questions,
         'from_extra': not is_assigned, 
         'error': error, 
-        'current': static(f"{base_url}taxonid={species_key}_current.tif"),
-        'current_th': static(f"{base_url}taxonid={species_key}_current_th.tif"),
-        'points': static(f"{base_url}taxonid={species_key}_pts.csv"),
-        'future': static(f"{base_url}taxonid={species_key}_current_th_ssp1.tif"),
-        'future_b': static(f"{base_url}taxonid={species_key}_current_th_ssp3.tif"),
-        'others': static(f"{base_url}taxonid={species_key}_others.png"),
+        'current': f"{base_url}taxonid={species_key}_current.tif",
+        'current_th': f"{base_url}taxonid={species_key}_current_th.tif",
+        'points': f"{base_url}taxonid={species_key}_pts.csv",
+        'future': f"{base_url}taxonid={species_key}_current_th_ssp1.tif",
+        'future_b': f"{base_url}taxonid={species_key}_current_th_ssp3.tif",
+        'others': f"{base_url}taxonid={species_key}_others.png",
     }
     return render(request, "evaluate.html", context)
