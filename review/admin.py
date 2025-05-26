@@ -8,6 +8,24 @@ from django.contrib.auth.admin import UserAdmin
 # Register your models here.
 from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation, SpeciesGroup#, EvaluationAnswer
 
+# Fix groups import
+from import_export import resources, fields
+from import_export.widgets import ForeignKeyWidget
+from .models import Species, SpeciesGroup
+
+class SpeciesResource(resources.ModelResource):
+    group = fields.Field(
+        column_name='group',
+        attribute='group',
+        widget=ForeignKeyWidget(SpeciesGroup, 'name')
+    )
+
+    class Meta:
+        model = Species
+        import_id_fields = ['key']
+        fields = ('key', 'name', 'group')  # explicitly declare
+
+
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
     extra = 1
@@ -17,6 +35,9 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('key', 'text')
 
 class SpeciesAdmin(ImportExportModelAdmin):
+    def log_import(self, *args, **kwargs):
+        pass
+    resource_class = SpeciesResource
     list_display = ('key', 'name', 'group')
 
 class UserAccessAdmin(ImportExportModelAdmin):
