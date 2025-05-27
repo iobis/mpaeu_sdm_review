@@ -46,6 +46,7 @@ class UserAccessAdmin(ImportExportModelAdmin):
 
 class AssignedSpeciesAdmin(ImportExportModelAdmin):
     list_display = ('user_code', 'species_key')
+    list_filter = ('user_code',)
 
 class SpeciesGroupAdmin(ImportExportModelAdmin):
     list_display = ['name']
