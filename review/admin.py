@@ -26,6 +26,12 @@ class SpeciesResource(resources.ModelResource):
         fields = ('key', 'name', 'group')  # explicitly declare
 
 
+class EvaluationResource(resources.ModelResource):
+    class Meta:
+        model = Evaluation
+        import_id_fields = ['id']
+        fields = ['id', 'user_code', 'species_key', 'question_key', 'answer']
+
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
     extra = 1
@@ -93,6 +99,7 @@ def export_evaluations_csv(modeladmin, request, queryset):
     return response
 
 @admin.register(Evaluation)
-class EvaluationAdmin(admin.ModelAdmin):
+class EvaluationAdmin(ImportExportModelAdmin):
+    resource_class = EvaluationResource
     list_display = ['user_code', 'species_key', 'question_key', 'answer']
     actions = [export_evaluations_csv]
