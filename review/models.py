@@ -16,6 +16,10 @@ class Species(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        verbose_name = "Species"
+        verbose_name_plural = "Species"
+    
 class UserAccess(models.Model):
     user_code = models.CharField(max_length=100, unique=True)
     groups = models.ManyToManyField("SpeciesGroup")
@@ -27,12 +31,18 @@ class UserAccess(models.Model):
     def __str__(self):
         return self.user_code
     
+    class Meta:
+        verbose_name = "User access"
+        verbose_name_plural = "Users access"
+    
 class AssignedSpecies(models.Model):
     user_code = models.CharField(max_length=100)
     species_key = models.CharField(max_length=100)
 
     class Meta:
         unique_together = ('user_code', 'species_key')
+        verbose_name = "Assigned species"
+        verbose_name_plural = "Assigned species"
 
 class Question(models.Model):
     QUESTION_TYPES = [
@@ -75,3 +85,14 @@ class SkippedSpecies(models.Model):
 
     class Meta:
         unique_together = ('user_code', 'species_key')
+
+# Add model for maintenance mode
+class SiteConfiguration(models.Model):
+    maintenance_mode = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Site status"
+
+    class Meta:
+        verbose_name = "Site status"
+        verbose_name_plural = "Site status"

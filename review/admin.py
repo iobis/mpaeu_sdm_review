@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
-from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation, SpeciesGroup#, EvaluationAnswer
+from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation, SpeciesGroup, SiteConfiguration#, EvaluationAnswer
 
 # Fix groups import
 from import_export import resources, fields
@@ -103,3 +103,8 @@ class EvaluationAdmin(ImportExportModelAdmin):
     resource_class = EvaluationResource
     list_display = ['user_code', 'species_key', 'question_key', 'answer']
     actions = [export_evaluations_csv]
+
+# Add maintenance mode configuration
+@admin.register(SiteConfiguration)
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    list_display = ("maintenance_mode",)

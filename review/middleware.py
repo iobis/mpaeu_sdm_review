@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
-from .models import UserAccess
+from .models import UserAccess, SiteConfiguration
+from django.shortcuts import render
 
+# Password change middleware
 class ForcePasswordChangeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -16,3 +18,22 @@ class ForcePasswordChangeMiddleware:
 
         response = self.get_response(request)  # Call next middleware/view
         return response
+
+# Maintenance mode middleware
+class MaintenanceModeMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            config = SiteConfiguration.objects.first()
+            if config and config.maintenance_mode:
+                # Allow staff and admin URLs
+                if request.user.is_staff or request.path.startswith("/admin/"):
+                    return self.get_response(request)
+
+                return render(request, "maintenance.html", status=503)
+        except Exception as e:
+            print("Maintenance middleware error:", e)
+
+        return self.get_response(request)
