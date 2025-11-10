@@ -1,0 +1,37 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+<div style="margin-bottom:20px; display: flex; gap: 10px;">
+  <a href="{% url 'admin:dashboard' %}" class="button" style="
+        background: #316da2;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        text-decoration: none;
+  ">
+    <i class="bi bi-bar-chart-fill"></i> View Dashboard
+  </a>
+
+  <a href="{% url 'admin:review_species_changelist' %}" class="button" style="
+        background: #316da2;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        text-decoration: none;
+  ">
+    <i class="bi bi-list-ul"></i> View evaluations
+  </a>
+
+  <a href="{% url 'admin:download_data' %}" class="button" style="
+        background: #316da2;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        text-decoration: none;
+  ">
+    <i class="bi bi-code-slash"></i> Download data and code
+  </a>
+</div>
+
+{{ block.super }}
+{% endblock %}
