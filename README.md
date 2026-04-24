@@ -18,7 +18,7 @@ You can adapt this application for your own use. It can be useful for:
 
 ### Quick Start
 
-The easiest way to use this application is with Docker. If you prefer to do whitout it, just do step 1 and then follow the instruction on [setup.md](setup.md).
+The easiest way to use this application is with Docker. If you prefer to do whitout it, just do step 1 and then follow the instructions on [setup.md](setup.md).
 
 1. **Clone the repository** (if applicable)
 
@@ -41,7 +41,7 @@ The easiest way to use this application is with Docker. If you prefer to do whit
    - Open `http://localhost:8000/admin/`
    - Log in with the credentials you created
 
-Further implementation details are on [setup.md](setup.md)
+Further instructions are on [setup.md](setup.md).
 
 ### Development Environment Variables
 
