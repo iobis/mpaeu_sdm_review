@@ -111,16 +111,8 @@ The following environment variables can be set (defaults are used if not provide
        listen 80;
        server_name your-domain-name.com;
        return 301 https://$server_name$request_uri;
-   }
-
-   server {
        listen 443 ssl;  # No http2 - fixes ERR_HTTP2_PROTOCOL_ERROR for images
        server_name  your-domain-name.com;
-
-       ssl_certificate /etc/letsencrypt/live/ your-domain-name.com/fullchain.pem;
-       ssl_certificate_key /etc/letsencrypt/live/ your-domain-name.com/privkey.pem;
-       include /etc/letsencrypt/options-ssl-nginx.conf;
-       ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
        # Security headers
        add_header X-Frame-Options "SAMEORIGIN" always;
@@ -134,38 +126,6 @@ The following environment variables can be set (defaults are used if not provide
        send_timeout 300s;
        client_max_body_size 10M;
 
-       # Serve media files directly (fixes ERR_HTTP2_PROTOCOL_ERROR)
-       # NOTE: Update the path below to match your actual project location
-       # Common locations: /root/edna-platform/data/media/ or /opt/edna-platform/data/media/
-       location /media/ {
-           alias /root/edna-platform/data/media/;
-           expires 30d;
-           add_header Cache-Control "public, immutable";
-           add_header X-Content-Type-Options "nosniff" always;
-           
-           # Don't use try_files with alias - let Nginx handle file resolution naturally
-           # If file doesn't exist, it will return 404 automatically
-           
-           # Explicitly set connection to keep-alive for HTTP/1.1
-           keepalive_timeout 65;
-       }
-
-       # API endpoints - let Django's corsheaders handle CORS
-       location /api/ {
-           proxy_pass http://127.0.0.1:8000;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-           proxy_set_header X-Forwarded-Host $host;
-           proxy_set_header X-Forwarded-Port $server_port;
-           proxy_buffering off;
-           proxy_redirect off;
-           
-           # Don't add CORS headers here - Django's corsheaders middleware handles it
-           # Adding them here causes duplicate headers (e.g., "*, *")
-       }
-
        # Everything else (admin, etc.)
        location / {
            proxy_pass http://127.0.0.1:8000;
@@ -178,7 +138,7 @@ The following environment variables can be set (defaults are used if not provide
            proxy_buffering off;
            proxy_redirect off;
        }
-   }
+    }
    ```
 
    Enable the site:
