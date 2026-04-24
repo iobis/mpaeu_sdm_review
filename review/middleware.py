@@ -8,15 +8,17 @@ class ForcePasswordChangeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.user.is_authenticated:
-            try:
-                access = UserAccess.objects.get(user_code=request.user.username)
-                if access.must_change_password and request.path != '/force-password-change/':
-                    return redirect('force_password_change')
-            except UserAccess.DoesNotExist:
-                pass
+        user = request.user
+        if user.is_authenticated:
+            if not user.is_superuser and not user.is_staff:
+                try:
+                    access = UserAccess.objects.get(user_code=user.username)
+                    if access.must_change_password and request.path != '/force-password-change/':
+                        return redirect('force_password_change')
+                except UserAccess.DoesNotExist:
+                    pass
 
-        response = self.get_response(request)  # Call next middleware/view
+        response = self.get_response(request)
         return response
 
 # Maintenance mode middleware

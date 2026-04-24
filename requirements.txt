@@ -7,3 +7,4 @@ requests==2.32.3
 requests-cache==1.2.1
 python-dotenv==1.1.0
 django-import-export==4.3.7
+psycopg2-binary==2.9.11

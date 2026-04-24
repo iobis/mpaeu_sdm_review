@@ -48,6 +48,7 @@ class Question(models.Model):
     QUESTION_TYPES = [
         ('radio', 'Radio (Multiple Choice)'),
         ('text', 'Free Text'),
+        ("map", "Map drawing"),
     ]
 
     key = models.CharField(max_length=100, unique=True)
@@ -67,7 +68,7 @@ class Evaluation(models.Model):
     user_code = models.CharField(max_length=100)
     species_key = models.CharField(max_length=100)
     question_key = models.CharField(max_length=100)
-    answer = models.CharField(max_length=255)
+    answer = models.TextField()
 
     class Meta:
         unique_together = ('user_code', 'species_key', 'question_key')

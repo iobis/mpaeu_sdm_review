@@ -1,0 +1,150 @@
+<div class="map-question">
+    <label><strong>{{ question.text }}</strong></label>
+
+    <div id="map_{{ question.key }}" class="map-box"></div>
+
+    <input type="hidden" 
+           name="question_{{ question.key }}" 
+           id="wkt_field_{{ question.key }}">
+</div>
+
+<style>
+.map-box {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    touch-action: none;
+}
+</style>
+
+<script src="
+https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.min.js
+"></script>
+<link href="
+https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.min.css
+" rel="stylesheet">
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const wktFieldId = "wkt_field_{{ question.key }}";
+
+    const mapId = "map_{{ question.key }}";
+
+    var map = L.map(mapId).setView([0, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // MAP SETTINGS
+    const cogUrl = "{{ current }}"; // Change here to use other map
+
+    function interpolateColor(val, min = 0, max = 100) {
+        if (val === undefined || val < min || val > max) return null;
+
+        const startColor = [10, 35, 75];    // #0a234b
+        const endColor   = [251, 228, 74];  // #fbe44a
+
+        const t = (val - min) / (max - min);
+
+        const r = Math.round(startColor[0] + t * (endColor[0] - startColor[0]));
+        const g = Math.round(startColor[1] + t * (endColor[1] - startColor[1]));
+        const b = Math.round(startColor[2] + t * (endColor[2] - startColor[2]));
+
+        return `rgb(${r},${g},${b})`;
+    }
+
+    fetch(cogUrl)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => parseGeoraster(arrayBuffer))
+        .then(georaster => {
+            const layer = new GeoRasterLayer({
+                georaster,
+                opacity: 1,
+                pixelValuesToColorFn: val => interpolateColor(val),
+                // pixelValuesToColorFn: val => {
+                //     if (val === undefined || val < 0 || val > 100) return null;
+                //     const t = val / 100;
+                //     const r = Math.round(255 * t);
+                //     const g = Math.round(255 * t);
+                //     const b = Math.round(255 * (1 - t));
+                //     return `rgb(${r},${g},${b})`;
+                // },
+                resolution: 128
+            });
+            layer.addTo(map);
+            map.fitBounds(layer.getBounds());
+            map.setZoom()
+        });
+
+    const csvUrl = "{{ points }}"; // Set as NULL if no points to show
+
+    if (csvUrl) {
+        fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvText => {
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                complete: function(results) {
+                    results.data.forEach(row => {
+                        if (row.x && row.y) {
+                            L.circleMarker([row.y, row.x], {
+                                radius: 6,
+                                color: 'black',
+                                fillColor: '#ffcc00',
+                                fillOpacity: 1,
+                                weight: 1
+                            }).addTo(map);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    //DRAW TOOLS
+
+    var drawnItems = new L.FeatureGroup().addTo(map);
+    // map.addLayer(drawnItems);
+    map.addControl(new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems,
+            poly: {
+                allowIntersection: false
+            }
+        },
+        draw: {
+            polygon: {
+                allowIntersection: false,
+                showArea: true
+            }
+        }
+    }));
+
+    function updateAllPolygons() {
+        var allGeoJSON = [];
+
+        drawnItems.eachLayer(function(layer) {
+            var geojson = layer.toGeoJSON();
+            allGeoJSON.push(geojson.geometry);
+        });
+
+        // Store combined GeoJSON as a JSON array
+        document.getElementById(wktFieldId).value = JSON.stringify(allGeoJSON);
+    }
+
+    map.on('draw:created', function (event) {
+        drawnItems.addLayer(event.layer);
+        updateAllPolygons();
+    });
+
+    map.on('draw:edited', function () {
+        updateAllPolygons();
+    });
+
+    map.on('draw:deleted', function () {
+        updateAllPolygons();
+    });
+
+});
+</script>

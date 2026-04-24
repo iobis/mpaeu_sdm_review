@@ -5,7 +5,9 @@
         <script>
             const speciesId = "{{ species.key }}";
             //const speciesId = 107381;
-            const jsonUrl = `https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=${speciesId}/model=mpaeu/taxonid=${speciesId}_model=mpaeu_what=log.json`;
+            //const jsonUrl = `https://mpaeu-dist.s3.amazonaws.com/results/species/taxonid=${speciesId}/model=mpaeu/taxonid=${speciesId}_model=mpaeu_what=log.json`;
+            const jsonUrl = "{{ json_url }}";
+            //console.log(jsonUrl);
 
             fetch(jsonUrl)
                 .then(response => {

@@ -4,6 +4,7 @@ import csv
 from import_export.admin import ImportExportModelAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
+from django.utils.html import format_html
 
 # Register your models here.
 from .models import Question, QuestionOption, Species, UserAccess, AssignedSpecies, Evaluation, SpeciesGroup, SiteConfiguration#, EvaluationAnswer
@@ -35,6 +36,15 @@ class EvaluationResource(resources.ModelResource):
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
     extra = 1
+    readonly_fields = ('note',)
+
+    def note(self, obj=None):
+        return format_html(
+            "<span style='color: #555;'>Ignored if question is not of type 'Radio (Multiple Choice)'. "
+            "Leave empty if type Map or Free Text.</span>"
+        )
+
+    note.short_description = "Note for admins"
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionInline]

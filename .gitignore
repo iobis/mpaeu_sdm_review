@@ -114,3 +114,5 @@ venv.bak/
 older_version/
 review/static/review/species
 internal/
+examples/data/
+data/postgres/

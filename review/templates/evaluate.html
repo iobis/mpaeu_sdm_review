@@ -7,7 +7,11 @@
 
 <h2>Evaluate: <i>{{ species.name }}</i></h2>
 
-<!-- Nav tabs -->
+<!-- Species information tabs: this goes on top of the questions section -->
+<!-- Change this section to add or remove additional tabs -->
+
+<!-- Navigation tabs -->
+<!-- You need one tab for each content. `id` and `aria-controls` should be unique and match next section -->
 <ul class="nav nav-pills" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab-one-tab" data-bs-toggle="tab" data-bs-target="#tab-one" type="button"
@@ -48,11 +52,14 @@
 </ul>
 
 <!-- Tab panes -->
+<!-- You need one tab for each content. `id` and `aria-controls` should be unique and match previous section -->
 <div class="tab-content mt-3" id="myTabContent">
     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one-tab">
+        <!-- Each tab can have a different content; here we are including content from another html file -->
         {% include "species_info.html" %}
     </div>
     <div class="tab-pane fade" id="tab-two" role="tabpanel" aria-labelledby="tab-two-tab">
+        <!-- Here we import content from another file, while also passing some props -->
         {% include "map.html" with map_id="suitability-map" selected_map=current%}
     </div>
     <div class="tab-pane fade" id="tab-three" role="tabpanel" aria-labelledby="tab-three-tab">
@@ -71,6 +78,7 @@
 </div>
   
 <hr>
+<!-- Questions block - in general you should avoid changing this part -->
 <div class="questions-block">
     <h3 style="margin-bottom: 15px;">Questions</h3>
  {% if error %}
@@ -86,6 +94,8 @@
             {% endif %}
             {% if question.question_type == 'text' %}
                 <textarea name="question_{{ question.key }}" rows="3" cols="50"></textarea>
+            {% elif question.question_type == 'map' %}
+                {% include "questions/map_question.html" with question=question %}
             {% else %}
                 {% for option in question.options.all %}
                     <label>

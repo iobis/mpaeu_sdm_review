@@ -1,0 +1,6 @@
+"username","first_name","last_name","email","is_staff"
+"user_1","Name A","Surname A","user_1@example.com",FALSE
+"user_2","Name B","Surname B","user_2@example.com",FALSE
+"user_3","Name C","Surname C","user_3@example.com",FALSE
+"user_4","Name D","Surname D","user_4@example.com",FALSE
+"user_5","Name E","Surname E","user_5@example.com",FALSE

@@ -10,7 +10,10 @@ from django import forms
 
 User = get_user_model()
 
-base_url = "https://mpaeu-dist.s3.amazonaws.com/review/"
+# To serve from an S3 bucket, for example:
+#base_url = "https://mpaeu-dist.s3.amazonaws.com/review/"
+# Here serving from static files:
+base_url = static("review/species/")
 
 class PasswordChangeWithConsentForm(PasswordChangeForm):
     consent_accepted = forms.BooleanField(
@@ -132,6 +135,7 @@ def evaluate_next_species(request):
         'future': f"{base_url}taxonid={species_key}_current_th_ssp1.tif",
         'future_b': f"{base_url}taxonid={species_key}_current_th_ssp3.tif",
         'others': f"{base_url}taxonid={species_key}_others.png",
+        'json_url': f"{base_url}taxonid={species_key}_log.json",
     }
     return render(request, "evaluate.html", context)
 
@@ -295,5 +299,6 @@ def evaluate_species(request, species_key):
         'future': f"{base_url}taxonid={species_key}_current_th_ssp1.tif",
         'future_b': f"{base_url}taxonid={species_key}_current_th_ssp3.tif",
         'others': f"{base_url}taxonid={species_key}_others.png",
+        'json_url': f"{base_url}taxonid={species_key}_log.json",
     }
     return render(request, "evaluate.html", context)
