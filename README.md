@@ -18,6 +18,8 @@ You can adapt this application for your own use. It can be useful for:
 
 ### Quick Start
 
+The easiest way to use this application is with Docker. If you prefer to do whitout it, just do step 1.
+
 1. **Clone the repository** (if applicable)
 
 2. **Start services with Docker Compose**:
@@ -38,6 +40,8 @@ You can adapt this application for your own use. It can be useful for:
 5. **Access the admin interface**:
    - Open `http://localhost:8000/admin/`
    - Log in with the credentials you created
+
+Further implementation details are on [setup.md](setup.md)
 
 ### Development Environment Variables
 
