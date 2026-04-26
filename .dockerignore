@@ -2,5 +2,6 @@
 *
 !manage.py
 !requirements.txt
+!docker-entrypoint.prod.sh
 !mpaeureview/
 !review/
