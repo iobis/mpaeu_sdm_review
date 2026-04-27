@@ -6,7 +6,8 @@ abstract: Django application for reviewing SDMs
 url: https://github.com/iobis/mpaeu_sdm_review
 license: MIT
 authors:
-  - family-names: silasprincipe
+  - given-names: Silas
+    family-names: Principe
     orcid: "https://orcid.org/0000-0002-8059-6304"
   - given-names: Pieter
     family-names: Provoost
