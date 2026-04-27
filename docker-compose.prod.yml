@@ -1,12 +1,13 @@
-version: "3.9"
-
 services:
-
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:3000
-    volumes:
-      - .:/app
-      - ./data/media:/app/media
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     ports:
-      - "3000:3000"
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: mpaeureview.settings
+      PORT: "8000"
+      WEB_CONCURRENCY: "3"
+    volumes:
+      - ./data/media:/app/media
