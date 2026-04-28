@@ -43,6 +43,9 @@ The easiest way to use this application is with Docker. If you prefer to do whit
 
 Further instructions are on [setup.md](setup.md).
 
+> [!TIP]
+> We provide example data that you can use to understand how the platform works. Instructions are on the [setup.md](setup.md) file.
+
 ### Development Environment Variables
 
 The following environment variables can be set (defaults are used if not provided):
