@@ -33,7 +33,13 @@ python manage.py createsuperuser
 
 ## Starting the application (first use)
 
-from review.models import Question, AssignedSpecies, Species, UserAccess, Evaluation
+Once you start the server (either through Docker or a traditional installation), if you navigate to the address you will be directed to the dashboard login:
+
+First `Species Groups`, `Access` and then `Species` and then `Assigned`
+
+
+
+
 
 ## Changing species information structure
 
@@ -46,7 +52,7 @@ By default, the species information is displayed across 6 tabs:
 - Alternative models: other predictions
 - Future predictions: predictions for future periods
 
-Species data can be stored locally (e.g. `review/static/species/`) or in an external source (for example an S3 bucket). To alter the source from the files, edit the `base_url` at `views.py`. File names follows the standard taxonid={species_id}_{data_type}.{extension}. For example, for species with taxonid 107276, we have the following files:
+Species data can be stored locally (e.g. `review/static/review/species/`) or in an external source (for example an S3 bucket). To alter the source from the files, edit the `base_url` at `views.py`. File names follows the standard taxonid={species_id}_{data_type}.{extension}. For example, for species with taxonid 107276, we have the following files:
 
 - taxonid=107276_current.tif [suitability map]
 - taxonid=107276_current_th.tif [suitability map thresholded]
@@ -67,7 +73,7 @@ Three templates are involved in displaying species information:
 
 **Modifying evaluate.html**
 
-The `evaluate.html` contains the structure of the evaluation page. It. basically consists of three parts: tabs navigation, tab content, and the questions form. In this part you can modify the tabs structure, adding or removing tabs as needed.
+The `evaluate.html` contains the structure of the evaluation page. It basically consists of three parts: tabs navigation, tab content, and the questions form. In this part you can modify the tabs structure, adding or removing tabs as needed.
 
 For each tab, you should have a component like this in the navigation section:
 
@@ -119,3 +125,9 @@ The `map.html` is a reusable component for displaying maps through leaflet.js. I
 To clean up the project, remove the SQLite database (`db.sqlite3`) and delete all migrations (remove folder `migrations`). Then run the previous steps.
 
 Note: this will remove any data you have previously imported, and it will also delete any user that was created.
+
+## Changing the project logo and help page
+
+The project logo is on `review/static/review/img/logo.png`.
+
+The help page is buil using images on `review/static/review/img/help`. You can then alter the text on `review/templates/help.html`
